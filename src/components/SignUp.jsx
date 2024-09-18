@@ -1,6 +1,6 @@
 import React from 'react';
 import { useState } from 'react'
-import { BrowserRouter } from 'react-router-dom'
+import { Link } from 'react-router-dom';
 
 export default function SignUp(){
     const [formData, setFormData] = useState({
@@ -40,7 +40,7 @@ export default function SignUp(){
                         onChange={handleChange}
                      />
                 </label>
-                <input type="submit"/>
+                <Link to="/home"><input type="submit"/></Link>
             </form>
         </div>
     )
