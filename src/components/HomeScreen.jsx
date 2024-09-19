@@ -19,7 +19,7 @@ export default function HomeScreen() {
       
         const year = currentDate.getFullYear();          // Get the year (e.g., 2023)
         const month = String(currentDate.getMonth() + 1).padStart(2, '0');  // Get the month and format as two digits
-        const day = String(currentDate.getDate()).padStart(2, '0');         // Get the day and format as two digits
+        const day = String(currentDate.getDate() + 1).padStart(2, '0');         // Get the day and format as two digits
       
         return `${year}-${month}-${day}`;  // Combine the values into the desired format
       };
@@ -45,7 +45,7 @@ export default function HomeScreen() {
 
     const calendar = useCalendarApp({
         views: [createViewDay(), createViewWeek(), createViewMonthGrid(), createViewMonthAgenda()],
-        defaultView: viewMonthGrid.name,
+        defaultView: viewWeek.name,
         calendarConfig,
         events: [
           {
@@ -62,7 +62,7 @@ export default function HomeScreen() {
         <>
             <h1>Calendr Screen</h1>
             <button><Link to="/">Logout</Link></button>
-            <div>
+            <div className='custom'>
                 <ScheduleXCalendar calendarApp={calendar}/>
             </div>
         </>
