@@ -9,8 +9,10 @@ import {
     createViewWeek,
     viewDay, viewMonthAgenda, viewMonthGrid, viewWeek
   } from '@schedule-x/calendar'
-   
 import '@schedule-x/theme-default/dist/index.css'
+import { createEventsServicePlugin } from '@schedule-x/events-service'
+import { createEventModalPlugin } from '@schedule-x/event-modal'
+
 
 
 export default function HomeScreen() {
@@ -40,12 +42,24 @@ export default function HomeScreen() {
                 },
             }
         },
+        callbacks: {
+            onClickDate(date){
+                console.log('onClickDate', date)
+            },
+            onRangeUpdate(range) {
+                console.log('new calendar range start date', range.start)
+                console.log('new calendar range end date', range.end)
+              }
+        }
       }
+
+    const eventsServicePlugin = createEventsServicePlugin()
       
 
     const calendar = useCalendarApp({
         views: [createViewDay(), createViewWeek(), createViewMonthGrid(), createViewMonthAgenda()],
-        defaultView: viewWeek.name,
+        defaultView: viewMonthGrid.name,
+        plugins: [eventsServicePlugin, createEventModalPlugin()],
         calendarConfig,
         events: [
           {
@@ -57,6 +71,7 @@ export default function HomeScreen() {
           },
         ],
       })
+
 
     return (
         <>

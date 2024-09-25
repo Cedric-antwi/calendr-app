@@ -4,10 +4,10 @@ import { Link } from 'react-router-dom';
 
 export default function SignUp(){
     const [formData, setFormData] = useState({
-        name: "",
         email: "",
         password: ""
     })
+    const [message, setMessage] = useState('')
 
     function handleChange(event) {
         let {name, value} = event.target
@@ -19,32 +19,35 @@ export default function SignUp(){
         })
     }
 
-    const handleSignup = async (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault()
         try {
-            const response = await signupUser(username, password)
-            //handle success e.g. redirect to the login
-            console.log('signup successful', response)
+            const res = await fetch(`${process.env.CALENDR_APP_API_URL}/auth/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: formData.email,
+                    password: formData.password
+                })
+            });
+    
+            res.status(200).json({ message: 'Login successful' });
+            // const {token} = res.data
+            // localStorage.setItem('token', token) // store JWT (from backend) in localStorage
+            // setMessage('Login successful')
         } catch (err) {
-            console.log('error', err)
+            console.log(err)
         }
+            
     }
 
     return (
         <>
-        <h1>Signup page</h1>
+        <h1>Login Page</h1>
         <div className="app-signup-container">
-            <form className="app-signup-form" onSubmit={handleSignup}>
-                <label>
-                    Name:
-                    <input 
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                    />
-                </label>
-
+            <form className="app-signup-form" onSubmit={handleLogin}>
                 <label>
                     Email:
                     <input 
@@ -64,8 +67,9 @@ export default function SignUp(){
                         onChange={handleChange}
                      />
                 </label>
-                <Link to="/Login"><input type="submit" name='Register'/></Link>
+                <input type="submit"/>
             </form>
+            <p>{message}</p>
         </div>
         </>
     )
