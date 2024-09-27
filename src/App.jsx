@@ -4,7 +4,7 @@ import './App.scss'
 import SignUp from './components/SignUp'
 import HomeScreen from './components/HomeScreen'
 import Login from './components/Login'
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 
 function App() {
 
@@ -12,7 +12,7 @@ function App() {
     <>
     <Routes>
       <Route path="/" element={<SignUp />}/>
-      <Route path="/Login" element={<Login/>}></Route>
+      <Route path="/login" element={<Login/>}></Route>
       <Route path="/home" element={<HomeScreen />}></Route>
     </Routes>
     </>

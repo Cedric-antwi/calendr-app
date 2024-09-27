@@ -1,6 +1,6 @@
 import React from 'react';
 import { useState } from 'react'
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function SignUp(){
     const [formData, setFormData] = useState({
@@ -8,6 +8,7 @@ export default function SignUp(){
         password: ""
     })
     const [message, setMessage] = useState('')
+    const navigate = useNavigate() //for redirects
 
     function handleChange(event) {
         let {name, value} = event.target
@@ -32,11 +33,15 @@ export default function SignUp(){
                     password: formData.password
                 })
             });
-    
-            res.status(200).json({ message: 'Login successful' });
-            // const {token} = res.data
-            // localStorage.setItem('token', token) // store JWT (from backend) in localStorage
-            // setMessage('Login successful')
+
+            if (res.ok){
+                const data = await res.json()
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+                navigate('/home')
+            } else {
+                setMessage('Incorrect login')
+            }
         } catch (err) {
             console.log(err)
         }
@@ -70,6 +75,9 @@ export default function SignUp(){
                 <input type="submit"/>
             </form>
             <p>{message}</p>
+            <div>
+                <Link to="/"><p>Sign up to Calendr</p></Link>
+            </div>
         </div>
         </>
     )
