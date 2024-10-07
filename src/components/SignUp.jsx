@@ -25,6 +25,30 @@ export default function SignUp(){
         })
     }
 
+    const createDefaultCalendar = async(e) => {
+        try {
+            const currentUser = localStorage.getItem('user')
+            const defaultCalendar = await fetch(`${process.env.CALENDR_APP_API_URL}/calendr/new`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${data.token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    title: "Main Calendr",
+                    owner_id: currentUser.id
+                })
+            })
+            if (defaultCalendar.status === 201){
+                navigate('/auth/login')
+            } else {
+                console.log('unable to sign you up at the moment..')
+            }
+        } catch (err) {
+            console.error('error creating your account' + err)
+        }
+    }
+
     const handleSignup = async (e) => {
         e.preventDefault()
         try {
@@ -38,6 +62,8 @@ export default function SignUp(){
            if (res.status(200)){
                 const data = await res.json()
                 localStorage.setItem('token', data.token)
+                localStorage.setItem('user', JSON.stringify(data.user));
+                createDefaultCalendar()
                 navigate('/auth/login')
            } else {
             setErrormsg('Error during signup')

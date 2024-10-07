@@ -5,6 +5,7 @@ import SignUp from './components/SignUp'
 import HomeScreen from './components/HomeScreen'
 import Login from './components/Login'
 import { Routes, Route, Navigate } from 'react-router-dom';
+//npm run dev to start on localhost
 
 function App() {
 

@@ -1,23 +1,17 @@
 import React from 'react';
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom';
-import { useCalendarApp, ScheduleXCalendar } from '@schedule-x/react'
-import {
-    createViewDay,
-    createViewMonthAgenda,
-    createViewMonthGrid,
-    createViewWeek,
-    viewDay, viewMonthAgenda, viewMonthGrid, viewWeek
-  } from '@schedule-x/calendar'
-import '@schedule-x/theme-default/dist/index.css'
-import { createEventsServicePlugin } from '@schedule-x/events-service'
-import { createEventModalPlugin } from '@schedule-x/event-modal'
-
-
+import { formatDate } from '@fullcalendar/core'
+import FullCalendar from '@fullcalendar/react'
+import dayGridPlugin from '@fullcalendar/daygrid'
+import timeGridPlugin from '@fullcalendar/timegrid'
+import interactionPlugin from '@fullcalendar/interaction'
 
 export default function HomeScreen() {
 
   const [userName, setUserName] = useState('');
+  const [token, setToken] = useState('');
+  const [calendarEvents, setCalendarEvents] = useState([]) // arr of event objects
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -28,6 +22,64 @@ export default function HomeScreen() {
       }
   }, []);
 
+  const [weekendsVisible, setWeekendsVisible] = useState(true)
+  const [currentEvents, setCurrentEvents] = useState([])
+
+  function handleWeekendsToggle() {
+    setWeekendsVisible(!weekendsVisible)
+  }
+
+  function handleDateSelect(selectInfo) {
+    let title = prompt('Please enter a new title for your event')
+    let calendarApi = selectInfo.view.calendar
+
+    calendarApi.unselect() // clear date selection
+
+    if (title) {
+      calendarApi.addEvent({
+        id: createEventId(),
+        title,
+        start: selectInfo.startStr,
+        end: selectInfo.endStr,
+        allDay: selectInfo.allDay
+      })
+    }
+  }
+
+  function handleEventClick(clickInfo) {
+    if (confirm(`Are you sure you want to delete the event '${clickInfo.event.title}'`)) {
+      clickInfo.event.remove()
+    }
+  }
+
+  function handleEvents(events) {
+    setCurrentEvents(events)
+  }
+
+
+let eventGuid = 0
+let todayStr = new Date().toISOString().replace(/T.*$/, '') // YYYY-MM-DD of today
+
+ const INITIAL_EVENTS = [
+  {
+    id: createEventId(),
+    title: 'All-day event',
+    start: todayStr
+  },
+  {
+    id: createEventId(),
+    title: 'Timed event',
+    start: todayStr + 'T12:00:00'
+  }
+]
+
+ function createEventId() {
+  return String(eventGuid++)
+}
+
+// ==========
+
+
   function handleLogout(){
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -35,71 +87,35 @@ export default function HomeScreen() {
     navigate('/login');
   }
 
-  const getFormattedDate = () => {
-      const currentDate = new Date(Date.now());
-    
-      const year = currentDate.getFullYear();          // Get the year (e.g., 2023)
-      const month = String(currentDate.getMonth() + 1).padStart(2, '0');  // Get the month and format as two digits
-      const day = String(currentDate.getDate() + 1).padStart(2, '0');         // Get the day and format as two digits
-    
-      return `${year}-${month}-${day}`;  // Combine the values into the desired format
-    };
-
-    const calendarConfig = {
-      calendars: {
-          personal: {
-              colorName: 'personal',
-              lightColors: {
-                main: '#f9d71c',
-                container: '#fff5aa',
-                onContainer: '#594800',
-              },
-              darkColors: {
-                main: '#fff5c0',
-                onContainer: '#fff5de',
-                container: '#a29742',
-              },
-          }
-      },
-      callbacks: {
-          onClickDate(date){
-              console.log('onClickDate', date)
-          },
-          onRangeUpdate(range) {
-              console.log('new calendar range start date', range.start)
-              console.log('new calendar range end date', range.end)
-            }
-      }
-    }
-
-  const eventsServicePlugin = createEventsServicePlugin()
-    
-
-  const calendar = useCalendarApp({
-      views: [createViewDay(), createViewWeek(), createViewMonthGrid(), createViewMonthAgenda()],
-      defaultView: viewMonthGrid.name,
-      plugins: [eventsServicePlugin, createEventModalPlugin()],
-      calendarConfig,
-      events: [
-        {
-          id: '1',
-          title: 'Event 1',
-          start: getFormattedDate(),
-          end: getFormattedDate(),
-          calendarId: 'personal'
-        },
-      ],
-    })
-
-
     return (
         <>
             <h1>Calendr Screen</h1>
             <h3>Welcome {userName}, to Calendr!</h3>
             <button onClick={handleLogout}>Logout</button>
-            <div className='custom'>
-                <ScheduleXCalendar calendarApp={calendar}/>
-            </div>
+            <br></br>
+            <FullCalendar
+              plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+              headerToolbar={{
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+              }}
+              initialView='dayGridMonth'
+              editable={true}
+              selectable={true}
+              selectMirror={true}
+              dayMaxEvents={true}
+              weekends={weekendsVisible}
+              initialEvents={INITIAL_EVENTS} // alternatively, use the `events` setting to fetch from a feed
+              select={handleDateSelect}
+              eventClick={handleEventClick}
+              eventsSet={handleEvents} // called after events are initialized/added/changed/removed
+              /* you can update a remote database when these fire:
+              eventAdd={function(){}}
+              eventChange={function(){}}
+              eventRemove={function(){}}
+              */
+            />
         </>
     )
 }

@@ -38,7 +38,22 @@ export default function SignUp(){
                 const data = await res.json()
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('user', JSON.stringify(data.user));
-                navigate('/home')
+                
+                const homePageres = await fetch(`${process.env.CALENDR_APP_API_URL}/calendr/home`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${data.token}`,
+                        'Content-Type': 'application/json'
+                    }
+                })
+                if (homePageres.status === 200) {
+                    setMessage('trouble retrieving account details')
+                    navigate('/home')
+                } else {
+                    navigate('/login')
+                    console.log('error fetching created calendar', homePageres.statusText)
+                }
+
             } else {
                 setMessage('Incorrect login')
             }
