@@ -20,14 +20,14 @@ export default function HomeScreen() {
       if (user && user.name) {
           setUserName(user.name); // Set the user's name in state
       }
+      const token = localStorage.getItem('token');
+      if (token) {
+          setToken(token);
+      }
   }, []);
 
   const [weekendsVisible, setWeekendsVisible] = useState(true)
   const [currentEvents, setCurrentEvents] = useState([])
-
-  function handleWeekendsToggle() {
-    setWeekendsVisible(!weekendsVisible)
-  }
 
   function handleDateSelect(selectInfo) {
     let title = prompt('Please enter a new title for your event')
@@ -76,6 +76,28 @@ let todayStr = new Date().toISOString().replace(/T.*$/, '') // YYYY-MM-DD of tod
  function createEventId() {
   return String(eventGuid++)
 }
+
+
+const handleNewEvent = async (e) => {
+  e.preventDefault()
+
+  try {
+    const res = await fetch(`${process.env.CALENDR_APP_API_URL}/events/new`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        title: "hardcoded event",
+        calendarId: currentUser.id
+    })
+    })
+  } catch (error) {
+    console.error('Error creating new event:', error)
+  }
+}
+
 
 // ==========
 
